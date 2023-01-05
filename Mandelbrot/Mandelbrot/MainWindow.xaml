@@ -22,6 +22,7 @@
         </StackPanel>
         <Button Name="AnimateButton" Content="Animate" Width="120" Height="30" Click="AnimateButton_Click" HorizontalAlignment="Left"/>
         <Button Name="MandelbrotButton" Content="Mandelbrot" Width="120" Height="30" Click="MandelbrotButton_Click" HorizontalAlignment="Left"/>
+        <Button Name="SaveImageButton" Content="Save Image" Width="120" Height="30" Click="SaveImageButton_Click" HorizontalAlignment="Left"/>
 
     </StackPanel>
 

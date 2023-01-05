@@ -13,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices.WindowsRuntime;
+using System.IO;
 
 namespace Mandelbrot
 {
@@ -21,9 +23,11 @@ namespace Mandelbrot
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string DEFAULT_SavePathString = ".\\Images";
+
         // These change the constant for Mandelbrot and Julia sets
-        private static double IterateConstantValReal = -0.8;
-        private static double IterateConstantValComplex = +0.153;
+        private static double IterateConstantValReal = 0;//-0.8;
+        private static double IterateConstantValComplex =0;//= +0.153;
         private bool isAnimating = false;
         private static bool isMandelbrot = true;
 
@@ -218,15 +222,42 @@ namespace Mandelbrot
             isAnimating = false;
             isMandelbrot = true;
 
- //           // clear the slider values
- //           IterateConstantValReal = 0;
- //           IterateConstantValComplex = 0;
-
-//            Dispatcher.Invoke(() => slValueReal.Value = IterateConstantValReal);
-//            Dispatcher.Invoke(() => slValueComplex.Value = IterateConstantValComplex);
-
             Dispatcher.Invoke(() => AnimateButton.Content = "Start Animation");
             Dispatcher.Invoke(() => Render());
+        }
+
+        private void SaveImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            string filename;
+            
+            if (isMandelbrot == true)
+            {
+                filename = "Mandelbrot";
+            }
+            else
+            {
+                filename = "Julia_R" + IterateConstantValReal.ToString() + "_" + "C" + IterateConstantValComplex.ToString();
+            }
+
+            Directory.CreateDirectory(DEFAULT_SavePathString);
+            string SavePathString = System.IO.Path.Combine(DEFAULT_SavePathString, filename + ".png");
+
+            int count = 1;
+            while (System.IO.File.Exists(SavePathString))
+            {
+                SavePathString = System.IO.Path.Combine(DEFAULT_SavePathString, filename + "_" + count.ToString() + ".png");
+                count++;
+            }
+
+            if (filename != string.Empty && SavePathString != string.Empty)
+            {
+                using (FileStream file_stream = new FileStream(SavePathString, FileMode.Create))
+                {
+                    PngBitmapEncoder encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bmp.Clone()));
+                    encoder.Save(file_stream);
+                }
+            }
         }
 
         private void UpdateConstantValues()
@@ -241,9 +272,6 @@ namespace Mandelbrot
 
                 IterateConstantValReal = Math.Sin(current_step);
                 Dispatcher.Invoke(() => slValueReal.Value = IterateConstantValReal);
-//                IterateConstantValComplex = Math.Sin(current_step);
-
-
                 Dispatcher.Invoke(() => Render());
 
                 Thread.Sleep(TimeSpan.FromMilliseconds(animate_speed));
